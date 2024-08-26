@@ -1,0 +1,58 @@
+.coinmini {
+    width: 50px;
+}
+.coin-click {
+    transform: scale(1.03);
+    transition: transform 0.05s ease-in-out;
+}
+
+.coin {
+    width: 300px;
+    transition: transform 0.05s ease-in-out;
+}
+
+/* Image scaling and moving upwards */
+.coin-animation {
+    position: absolute;
+    color: white;
+    animation: moveUp 2s ease-in-out;
+    transform: translate(-50%, -50%); /* Center the image on the click */
+}
+
+@keyframes moveUp {
+    from {
+        transform: translate(-50%, -50%) translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translate(-50%, -50%) translateY(-100px);
+        opacity: 0;
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .coin {
+        width: 200px; /* Adjust coin size for tablets */
+    }
+    .px-[100px] {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .coin {
+        width: 150px; /* Adjust coin size for mobile phones */
+    }
+    .px-[100px] {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .coinmini {
+        width: 30px; /* Smaller coin size for mobile */
+    }
+    .text-[20px] {
+        font-size: 16px; /* Smaller text size for mobile */
+    }
+}
