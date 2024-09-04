@@ -32,7 +32,7 @@
     position: absolute;
     font-size: 50px;
     font-weight: bold;
-    color: #ffcc00;
+    color: white;
     pointer-events: none;
 }
 .progress-bar-container{
