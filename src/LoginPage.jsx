@@ -63,7 +63,7 @@ const LoginPage = () => {
                     <div className='progress flex justify-between py-[30px] items-center px-[20px]'>
                         <p>Name: {userInfo.Name}</p>
                         <p className='flex items-center gap-4 text-[20px]'>
-                            <img className='coinmini' src="../src/assets/clikc_img.png" alt="coin" />
+                            <img className='coinmini' src="https://pngimg.com/d/coin_PNG36871.png" alt="coin" />
                             {userInfo.Coins}
                         </p>
                         <button className="logout-button" onClick={logout}>Log out</button>

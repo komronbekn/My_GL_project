@@ -118,7 +118,7 @@ const ClickCoins = ({ userInfo, setUserInfo }) => {
 
             <div className='flex justify-center'>
                 <button className='Click rounded-[50%]' type="button" onClick={incrementCoins}>
-                    <img className={`coin ${isAnimating ? 'coin-click' : ''}`} src="../src/assets/clikc_img.png" alt="coin" />
+                    <img className={`coin ${isAnimating ? 'coin-click' : ''}`} src="https://pngimg.com/d/coin_PNG36871.png" alt="coin" />
                 </button>
             </div>
 
