@@ -1,17 +1,16 @@
-import React, { useState } from "react"
-import LoginPage from "./LoginPage"
-import { Route, Routes } from "react-router-dom"
-import Router from "./utils/Router"
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LoginPage from './LoginPage';
+import ClickCoins from './ClickCoins'; // Обратите внимание, что ClickCoins не используется в маршрутах напрямую
 
-function App() {
-  const [route, setRoute] = useState(Router)
+const App = () => {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-      </Routes>
-    </>
-  )
-}
+    <Routes>
+      <Route path="/" element={<LoginPage />} />
+      {/* Добавьте другие маршруты, если необходимо */}
+    </Routes>
 
-export default App
+  );
+};
+
+export default App;
