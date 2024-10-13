@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ClickCoins = ({ userInfo, setUserInfo }) => {
-    const navigate = useNavigate();  
+    const navigate = useNavigate();
     const [isAnimating, setIsAnimating] = useState(false);
     const [animations, setAnimations] = useState([]);
     const [coinLimit, setCoinLimit] = useState(userInfo.coinLimit || 0);
@@ -84,20 +84,25 @@ const ClickCoins = ({ userInfo, setUserInfo }) => {
         updateCoinLimitOnServer();
     }, [coinLimit, userInfo._id]);
 
-    const handleClick = (event) => {
+    const handleClick = (event, touchPoints) => {
         const imageSize = 50;
-        const x = event.clientX - imageSize / 2;
-        const y = event.clientY - imageSize / 2;
+        
+        // Если кликов несколько
+        const touches = touchPoints || [{ clientX: event.clientX, clientY: event.clientY }];
+        
+        touches.forEach(touch => {
+            const x = touch.clientX - imageSize / 2;
+            const y = touch.clientY - imageSize / 2;
+            const newAnimation = { x, y, id: Date.now() + Math.random() };
 
-        const newAnimation = { x, y, id: Date.now() + Math.random() };
+            setAnimations((prevAnimations) => [...prevAnimations, newAnimation]);
 
-        setAnimations((prevAnimations) => [...prevAnimations, newAnimation]);
-
-        setTimeout(() => {
-            setAnimations((prevAnimations) =>
-                prevAnimations.filter((animation) => animation.id !== newAnimation.id)
-            );
-        }, 2000);
+            setTimeout(() => {
+                setAnimations((prevAnimations) =>
+                    prevAnimations.filter((animation) => animation.id !== newAnimation.id)
+                );
+            }, 2000);
+        });
     };
 
     const incrementCoins = () => {
@@ -136,7 +141,19 @@ const ClickCoins = ({ userInfo, setUserInfo }) => {
             </div>
 
             <div className='flex justify-center'>
-                <button className='Click rounded-[50%]' type="button" onClick={(event) => { incrementCoins(); handleClick(event); }}>
+                <button
+                    className='Click rounded-[50%]'
+                    type="button"
+                    onClick={(event) => { incrementCoins(); handleClick(event); }}
+                    onTouchStart={(event) => {
+                        incrementCoins();
+                        const touchPoints = Array.from(event.touches).map(touch => ({
+                            clientX: touch.clientX,
+                            clientY: touch.clientY,
+                        }));
+                        handleClick(event, touchPoints);
+                    }}
+                >
                     <img className={`coin ${isAnimating ? 'coin-click' : ''}`} src="https://pngimg.com/d/coin_PNG36871.png" alt="coin" />
                 </button>
             </div>
