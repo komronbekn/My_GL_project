@@ -12,9 +12,9 @@ const RegistePage = () => {
 
     useEffect(() => {
         // Fetch users data from server
-        fetch('https://gl-server.onrender.com/users')
+        fetch('https://ctc-node.onrender.com/users/')
             .then((res) => res.json())
-            .then((data) => setUsers(data));
+            .then((data) => setUsers(data.users));
     }, []);
 
     const handleInputChange = (e) => {
@@ -42,18 +42,14 @@ const RegistePage = () => {
         }
     
         // Send registration data to server
-        fetch('https://gl-server.onrender.com/users', {
+        fetch('https://ctc-node.onrender.com/users/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                id: `${users.length + 1}`,
                 Name: username,
-                Password: password,
-                Coins: 0,
-                coinLimit: 1000, // Ensure this value is included
-                maxCoinLimit: 1000 // Add maxCoinLimit here
+                Password: password
             }),
         })
             .then((res) => res.json())

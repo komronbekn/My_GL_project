@@ -2,48 +2,87 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const ClickCoins = ({ userInfo, setUserInfo }) => {
-    const navigate = useNavigate();  // Hook for navigation
+    const navigate = useNavigate();  
     const [isAnimating, setIsAnimating] = useState(false);
     const [animations, setAnimations] = useState([]);
     const [coinLimit, setCoinLimit] = useState(userInfo.coinLimit || 0);
 
     useEffect(() => {
-        setCoinLimit(userInfo.coinLimit || 0); // Sync coinLimit with userInfo on mount and updates
+        setCoinLimit(userInfo.coinLimit || 0); 
     }, [userInfo]);
 
-    const fetchCoinsLimit = async () => {
-        if (userInfo.coinLimit < userInfo.maxCoinLimit) {
-            const updatedCoinLimit = userInfo.coinLimit + 1;
+    useEffect(() => {
+        const syncDataWithServer = async () => {
+            const savedUserInfo = JSON.parse(localStorage.getItem('userInfo'));
 
+            if (savedUserInfo && savedUserInfo._id === userInfo._id) {
+                try {
+                    const response = await fetch(`https://ctc-node.onrender.com/users/${userInfo._id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(savedUserInfo),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const updatedUser = await response.json();
+                    setUserInfo(updatedUser);
+                    setCoinLimit(updatedUser.coinLimit);
+                    localStorage.removeItem('userInfo');
+                } catch (err) {
+                    console.error('Error updating coin limit:', err);
+                }
+            }
+        };
+
+        syncDataWithServer();
+    }, []);
+
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            setCoinLimit((prevCoinLimit) => {
+                if (prevCoinLimit < (userInfo.maxCoinLimit || 400)) {
+                    const updatedUserInfo = {
+                        ...userInfo,
+                        coinLimit: prevCoinLimit + 1
+                    };
+                    
+                    setUserInfo(updatedUserInfo);
+                    localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+                    return prevCoinLimit + 1;
+                }
+                return prevCoinLimit;
+            });
+        }, 1000);
+
+        return () => clearInterval(intervalId);
+    }, [userInfo]);
+
+    useEffect(() => {
+        const updateCoinLimitOnServer = async () => {
             try {
-                const response = await fetch(`https://gl-server.onrender.com/users/${userInfo.id}`, {
+                const response = await fetch(`http://localhost:5001/users${userInfo._id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ ...userInfo, coinLimit: updatedCoinLimit }),
+                    body: JSON.stringify({ ...userInfo, coinLimit }),
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error('Failed to update coinLimit on server');
                 }
-
-                const updatedUser = await response.json();
-                setUserInfo(updatedUser); // Update userInfo with new data
-                setCoinLimit(updatedUser.coinLimit); // Sync coinLimit
             } catch (err) {
                 console.error('Error updating coin limit:', err);
             }
-        }
-    };
+        };
 
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            fetchCoinsLimit();
-        }, 700);
-
-        return () => clearInterval(intervalId);
-    }, [userInfo]); // Trigger interval on userInfo changes
+        updateCoinLimitOnServer();
+    }, [coinLimit, userInfo._id]);
 
     const handleClick = (event) => {
         const imageSize = 50;
@@ -61,40 +100,20 @@ const ClickCoins = ({ userInfo, setUserInfo }) => {
         }, 2000);
     };
 
-    const incrementCoins = async (event) => {
+    const incrementCoins = () => {
         if (coinLimit > 0) {
             const updatedUserInfo = {
                 ...userInfo,
-                Coins: userInfo.Coins + 1,
-                coinLimit: userInfo.coinLimit - 1
+                Coins: (userInfo.Coins || 0) + 1,
+                coinLimit: coinLimit - 1
             };
 
-            try {
-                const response = await fetch(`https://gl-server.onrender.com/users/${userInfo.id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(updatedUserInfo),
-                });
+            setCoinLimit(updatedUserInfo.coinLimit);
+            setUserInfo(updatedUserInfo);
+            localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+            setIsAnimating(true);
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const data = await response.json();
-                setUserInfo(data); // Update userInfo
-                setCoinLimit(data.coinLimit); // Update coinLimit
-                localStorage.setItem('userInfo', JSON.stringify(data));
-
-                setIsAnimating(true);
-                setTimeout(() => setIsAnimating(false), 200);
-
-                handleClick(event);
-            } catch (err) {
-                console.error('Error updating coins:', err);
-                alert('Failed to update coins. Please try again later.');
-            }
+            setTimeout(() => setIsAnimating(false), 300);
         }
     };
 
@@ -117,7 +136,7 @@ const ClickCoins = ({ userInfo, setUserInfo }) => {
             </div>
 
             <div className='flex justify-center'>
-                <button className='Click rounded-[50%]' type="button" onClick={incrementCoins}>
+                <button className='Click rounded-[50%]' type="button" onClick={(event) => { incrementCoins(); handleClick(event); }}>
                     <img className={`coin ${isAnimating ? 'coin-click' : ''}`} src="https://pngimg.com/d/coin_PNG36871.png" alt="coin" />
                 </button>
             </div>
@@ -134,7 +153,7 @@ const ClickCoins = ({ userInfo, setUserInfo }) => {
                         animation: 'moveUp 2s ease-out forwards'
                     }}
                 >
-                    1
+                    +1
                 </p>
             ))}
         </div>

@@ -12,12 +12,12 @@ const LoginPage = () => {
     useEffect(() => {
         const fetchUsersData = async () => {
             try {
-                const response = await fetch('https://gl-server.onrender.com/users');
+                const response = await fetch('https://ctc-node.onrender.com/users/');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 const data = await response.json();
-                setUsersData(data);
+                setUsersData(data.users);
 
                 const savedUserInfo = JSON.parse(localStorage.getItem('userInfo'));
                 if (savedUserInfo && savedUserInfo.Name) {
